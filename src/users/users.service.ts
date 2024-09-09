@@ -1,13 +1,13 @@
 import { HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 import { PaginationDto } from 'src/common';
+import { ListResponse } from 'src/common/interfaces/list-response.interface';
 import { ObjectManipulator } from 'src/helpers';
 import { hasRoles } from 'src/helpers/validate-roles.helper';
 import { CreateUserDto, UpdateUserDto } from './dto';
-import { User } from './interfaces';
 
 @Injectable()
 export class UsersService extends PrismaClient implements OnModuleInit {
@@ -22,7 +22,7 @@ export class UsersService extends PrismaClient implements OnModuleInit {
     return this.user.create({ data: { ...createUserDto, password: bcrypt.hashSync(createUserDto.password, 10) } });
   }
 
-  async findAll(paginationDto: PaginationDto, user: User) {
+  async findAll(paginationDto: PaginationDto, user: User): Promise<ListResponse<User>> {
     const { page, limit } = paginationDto;
     const isAdmin = hasRoles(user.roles, [Role.Admin]);
 
@@ -34,11 +34,15 @@ export class UsersService extends PrismaClient implements OnModuleInit {
       take: limit,
       skip: (page - 1) * limit,
       where,
+      include: {
+        creator: { select: { id: true, username: true, email: true } },
+      },
+      orderBy: { createdAt: 'desc' },
     });
 
     return {
       meta: { total, page, lastPage },
-      data: data.map((item) => ObjectManipulator.exclude(item, ['password'])),
+      data: data.map((user) => ObjectManipulator.exclude(user, ['password', 'createdBy'])),
     };
   }
 
