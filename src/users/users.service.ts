@@ -3,8 +3,7 @@ import { RpcException } from '@nestjs/microservices';
 import { PrismaClient, Role, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
-import { PaginationDto } from 'src/common';
-import { ListResponse } from 'src/common/interfaces/list-response.interface';
+import { ListResponse, PaginationDto } from 'src/common';
 import { ObjectManipulator } from 'src/helpers';
 import { hasRoles } from 'src/helpers/validate-roles.helper';
 import { CreateUserDto, UpdateUserDto } from './dto';

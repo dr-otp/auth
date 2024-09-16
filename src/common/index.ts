@@ -1,1 +1,2 @@
-export { PaginationDto } from './dto/pagination.dto';
+export * from './dto/pagination.dto';
+export * from './interfaces/api-response.interface';
