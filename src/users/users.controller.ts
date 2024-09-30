@@ -4,6 +4,7 @@ import { PaginationDto } from 'src/common';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
+import { isUUID } from 'class-validator';
 
 @Controller()
 export class UsersController {
@@ -48,6 +49,15 @@ export class UsersController {
   @MessagePattern('users.find.summary')
   findOneWithSummary(@Payload('id', ParseUUIDPipe) id: string) {
     return this.usersService.findOneWithSummary(id);
+  }
+
+  @MessagePattern('users.find.summary.batch')
+  findSummary(@Payload() data: { ids: string[] }) {
+    const { ids } = data;
+
+    if (!Array.isArray(ids) || ids.some((id) => !isUUID(id))) throw new Error('Invalid user ids');
+
+    return this.usersService.findSummary(ids);
   }
 
   @MessagePattern('users.update')

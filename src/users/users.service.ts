@@ -130,6 +130,15 @@ export class UsersService extends PrismaClient implements OnModuleInit {
     return user;
   }
 
+  async findSummary(ids: string[]) {
+    const users = await this.user.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, username: true, email: true },
+    });
+
+    return users;
+  }
+
   async update(updateUserDto: UpdateUserDto) {
     const { id, ...data } = updateUserDto;
 
