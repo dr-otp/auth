@@ -140,7 +140,9 @@ export class UsersService extends PrismaClient implements OnModuleInit {
 
     await this.findOne(id);
 
-    return this.user.update({ where: { id }, data });
+    const updatedUser = await this.user.update({ where: { id }, data });
+
+    return ObjectManipulator.exclude(updatedUser, ['password', 'createdBy']);
   }
 
   async remove(id: string) {
@@ -152,7 +154,9 @@ export class UsersService extends PrismaClient implements OnModuleInit {
         message: `User with id ${id} is already disabled`,
       });
 
-    return this.user.update({ where: { id }, data: { deletedAt: new Date() } });
+    const updatedUser = await this.user.update({ where: { id }, data: { deletedAt: new Date() } });
+
+    return ObjectManipulator.exclude(updatedUser, ['password', 'createdBy']);
   }
 
   async restore(id: string) {
@@ -164,6 +168,8 @@ export class UsersService extends PrismaClient implements OnModuleInit {
         message: `User with id ${id} is already enabled`,
       });
 
-    return this.user.update({ where: { id }, data: { deletedAt: null } });
+    const updatedUser = await this.user.update({ where: { id }, data: { deletedAt: null } });
+
+    return ObjectManipulator.exclude(updatedUser, ['password', 'createdBy']);
   }
 }
