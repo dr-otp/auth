@@ -61,7 +61,7 @@ export class UsersService extends PrismaClient implements OnModuleInit {
         message: `User with id ${id} not found`,
       });
 
-    return ObjectManipulator.exclude(user, ['password']);
+    return ObjectManipulator.exclude(user, ['password', 'createdBy']);
   }
 
   async findByEmailOrUsername(data: { email?: string; username?: string }) {
@@ -86,7 +86,7 @@ export class UsersService extends PrismaClient implements OnModuleInit {
       });
     }
 
-    return ObjectManipulator.exclude(user, ['password']);
+    return ObjectManipulator.exclude(user, ['password', 'createdBy']);
   }
 
   async findOneWithMeta(id: string) {
@@ -108,11 +108,7 @@ export class UsersService extends PrismaClient implements OnModuleInit {
         message: `User with id ${id} not found`,
       });
 
-    const cleanUser = ObjectManipulator.exclude(user, ['password']);
-
-    return {
-      ...cleanUser,
-    };
+    return ObjectManipulator.exclude(user, ['password', 'createdBy']);
   }
 
   async findOneWithSummary(id: string) {
