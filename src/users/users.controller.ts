@@ -62,6 +62,7 @@ export class UsersController {
 
   @MessagePattern('users.update')
   update(@Payload() updateUserDto: UpdateUserDto) {
+    console.log(updateUserDto);
     return this.usersService.update(updateUserDto);
   }
 
