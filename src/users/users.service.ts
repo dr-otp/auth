@@ -17,8 +17,24 @@ export class UsersService extends PrismaClient implements OnModuleInit {
     this.logger.log('Connected to the database \\(^.^)/');
   }
 
-  async create(createUserDto: CreateUserDto) {
-    return this.user.create({ data: { ...createUserDto, password: bcrypt.hashSync(createUserDto.password, 10) } });
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    try {
+      const { password, ...data } = createUserDto;
+
+      const userPassword = password || this.generateRandomPassword();
+
+      const hashedPassword = bcrypt.hashSync(userPassword, 10);
+
+      const newUser = await this.user.create({ data: { ...data, password: hashedPassword } });
+
+      return { ...newUser, password: userPassword };
+    } catch (error) {
+      this.logger.error(error);
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: 'Error creating the user',
+      });
+    }
   }
 
   async findAll(paginationDto: PaginationDto, user: User): Promise<ListResponse<User>> {
@@ -171,5 +187,17 @@ export class UsersService extends PrismaClient implements OnModuleInit {
     const updatedUser = await this.user.update({ where: { id }, data: { deletedAt: null } });
 
     return ObjectManipulator.exclude(updatedUser, ['password', 'createdBy']);
+  }
+
+  private generateRandomPassword(length: number = 6) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    let generatedPassword = '';
+
+    const charsLength = chars.length;
+
+    for (let i = 0; i < length; i++) generatedPassword += chars.charAt(Math.floor(Math.random() * charsLength));
+
+    return generatedPassword;
   }
 }

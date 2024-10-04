@@ -1,6 +1,6 @@
 import { Role } from '@prisma/client';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword, IsUUID, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword, IsUUID, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -13,10 +13,11 @@ export class CreateUserDto {
   @Transform(({ value }) => value.trim().toLowerCase())
   email: string;
 
-  @IsString()
+  @IsNotEmpty()
   @MinLength(6)
   @IsStrongPassword()
-  password: string;
+  @IsOptional()
+  password?: string;
 
   @IsEnum(Role, { each: true })
   @IsOptional()
